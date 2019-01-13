@@ -3,6 +3,8 @@ int LIFE = 3;
 int count = 5;
 char ledsBitmask = 0b111000;
 
+int curveSpeed(int LR) { return 255 - abs(LR - 4) * 40; }
+
 void setup() {
     Serial.begin(9600);
 
@@ -44,19 +46,13 @@ void loop() {
 
     switch (LIFE) {
         case 3:
-            digitalWrite(17, LOW);
-            digitalWrite(18, LOW);
-            digitalWrite(19, LOW);
+            PORTC &= ~ledsBitmask;
             break;
         case 2:
-            digitalWrite(17, LOW);
-            digitalWrite(18, LOW);
-            digitalWrite(19, HIGH);
+            PORTC |= _BV(19);
             break;
         case 1:
-            digitalWrite(17, LOW);
-            digitalWrite(18, HIGH);
-            digitalWrite(19, HIGH);
+            PORTC |= _BV(18);
             break;
     }
 
@@ -93,19 +89,19 @@ void loop() {
                 else if ((UD < 4) && (LR == 4)) {  //下
                     analogWrite(6, 0);
                     analogWrite(10, 0);
-                    Speed = 255;
+                    Speed = map((UD - 4) * 64, 0, 255, 100, 255);
                     analogWrite(5, Speed);
                     analogWrite(9, Speed);
                 }
 
-                else if ((UD == 4) && (4 < LR)) {  //右
+                else if ((UD == 4) && (2 < LR)) {  //右
                     digitalWrite(5, LOW);
                     digitalWrite(10, LOW);
                     digitalWrite(6, HIGH);
                     digitalWrite(9, HIGH);
                 }
 
-                else if ((UD == 4) && (4 > LR)) {  //左
+                else if ((UD == 4) && (6 > LR)) {  //左
                     digitalWrite(6, LOW);
                     digitalWrite(9, LOW);
                     digitalWrite(5, HIGH);
@@ -115,7 +111,7 @@ void loop() {
                 else if ((4 < UD) && (4 < LR)) {  //第一象限
                     digitalWrite(5, LOW);
                     digitalWrite(9, LOW);
-                    Speed = 255 - abs(LR - 4) * 40;
+                    Speed = curveSpeed(LR);
                     analogWrite(6, 255);
                     analogWrite(10, Speed);
                 }
@@ -123,7 +119,7 @@ void loop() {
                 else if ((4 < UD) && (LR < 4)) {  //第二象限
                     digitalWrite(5, LOW);
                     digitalWrite(9, LOW);
-                    Speed = 255 - abs(LR - 4) * 40;
+                    Speed = curveSpeed(LR);
                     analogWrite(6, Speed);
                     analogWrite(10, 255);
                 }
@@ -131,7 +127,7 @@ void loop() {
                 else if ((UD < 4) && (LR < 4)) {  //第三象限
                     digitalWrite(6, LOW);
                     digitalWrite(10, LOW);
-                    Speed = 255 - abs(LR - 4) * 40;
+                    Speed = curveSpeed(LR);
                     analogWrite(5, Speed);
                     analogWrite(9, 255);
                 }
@@ -139,7 +135,7 @@ void loop() {
                 else if ((UD < 4) && (4 < LR)) {  //第四象限
                     digitalWrite(6, LOW);
                     digitalWrite(10, LOW);
-                    Speed = 255 - abs(LR - 4) * 40;
+                    Speed = curveSpeed(LR);
                     analogWrite(5, 255);
                     analogWrite(9, Speed);
                 }
@@ -191,10 +187,10 @@ void loop() {
             }
 
             else if (LIFE <= 0) {
-                analogWrite(5, 0);
-                analogWrite(6, 0);
-                analogWrite(9, 0);
-                analogWrite(10, 0);
+                digitalWrite(5, 0);
+                digitalWrite(6, 0);
+                digitalWrite(9, 0);
+                digitalWrite(10, 0);
                 Speed = 0;
 
                 PORTC |= ledsBitmask;
@@ -213,5 +209,4 @@ if (digitalRead(12) == LOW) {
     tone(4, 1000, 1400);
 } else {
     noTone(4);
-}
 }
